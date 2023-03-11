@@ -1,32 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { provider } from './utils/firebase';
 import reactLogo from './assets/react.svg';
 import './App.css';
+import { GoogleAuthProvider, connectAuthEmulator, getAuth, signInWithPopup } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
+
+const env = import.meta.env;
 
 function App () {
   const [count, setCount] = useState(0);
 
+  useEffect(() => {
+    const signIn = async () => {
+      try {
+        const auth = getAuth();
+        if (!env.PROD) {
+          connectAuthEmulator(auth, 'http://localhost:9099');
+        }
+        const result = await signInWithPopup(auth, provider);
+        const { accessToken } = GoogleAuthProvider.credentialFromResult(result) || {};
+        const { user } = result;
+        console.log({ accessToken, user });
+      } catch (error: unknown) {
+        if (error instanceof FirebaseError) {
+          const { code = '', customData = {}, message = '' } = error as FirebaseError;
+          console.error({ code, message });
+          const { email } = customData;
+          const credential = GoogleAuthProvider.credentialFromError(error as FirebaseError);
+          console.log({ email, credential });
+        } else {
+          console.error('Unknown error: ', error);
+        }
+      }
+    };
+
+    signIn();
+  }, []);
+
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => { setCount((count) => count + 1); }}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
   );
 }
