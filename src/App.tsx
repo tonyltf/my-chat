@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { provider } from './utils/firebase';
-import reactLogo from './assets/react.svg';
 import './App.css';
 import { GoogleAuthProvider, User, connectAuthEmulator, getAuth, signInWithPopup } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
-import { Navigate, redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 const env = import.meta.env;
 
@@ -14,6 +13,14 @@ function App () {
   const [error, setError] = useState<FirebaseError>();
 
   useEffect(() => {
+
+    localStorage.theme = 'dark';
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
     const signIn = async () => {
       try {
         const auth = getAuth();
