@@ -5,9 +5,22 @@ import firebase from './utils/firebase';
 
 import App from './App';
 import './index.css';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import Chat from './Chat';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <App />,
+  },
+  {
+    path: '/chat',
+    element: <Chat />,
+  },
+]);
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
